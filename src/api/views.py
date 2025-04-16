@@ -1,9 +1,14 @@
 from django.contrib.auth.models import User
-from rest_framework import permissions, viewsets, request, status, APIView
+from rest_framework.permissions import AllowAny
+
+from rest_framework import permissions, viewsets, status
 from api.serializers import TodoListSerializer, TodoSerializer, UserSerializer
 from lists.models import Todo, TodoList
 from django.http import HttpResponse
 import time
+
+from rest_framework.views import APIView
+from rest_framework.request import Request
 
 class IsCreatorOrReadOnly(permissions.BasePermission):
     """
@@ -53,13 +58,14 @@ class TodoViewSet(viewsets.ModelViewSet):
         user = self.request.user
         creator = user if user.is_authenticated else None
         serializer.save(creator=creator)
-        
+
 class ReadyView(APIView):
     """
     View that returns a 200 OK response with a delay of 5 seconds.
     """
+    permission_classes = [AllowAny]
     def get(self, request) -> HttpResponse:
-        time.sleep(60)
+        time.sleep(5)
         return HttpResponse("OK", status=200)
 
 
@@ -67,6 +73,7 @@ class HealthView(APIView):
     """
     Health check view that returns a 200 OK response.
     """
+    permission_classes = [AllowAny]
     def get(self, request) -> HttpResponse:
         return HttpResponse("OK", status=200)
     
